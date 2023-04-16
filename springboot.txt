@@ -1,0 +1,61 @@
+https://www.yuque.com/atguigu/springboot/lcfeme
+
+@Bean
+（1）@Bean 注解：作用在方法上，方法都需要有一个返回类型；
+（2）@Bean 注解：用于表示当前方法返回一个 Spring 容器管理的 Bean；
+（3）@Bean 的默认的名字和方法名一致(一般Bean都是首字母小写，因为方法名的首字母一般都是小写的)；
+（4）@Bean 注解：一般和 @Component 或者 @Configuration 一起使用；
+（5）@Bean 注解：默认作用域为单例作用域，可通过 @Scope(“prototype”) 设置为原型作用域；
+（6）@Bean 注解：可以接受一个 String 数组来设置多个别名；
+
+@configuration
+	配置类中通过@configuration中proxyBeanMethods属性，来改变bean对象是单例还是多例；true(Full模式)为单例，false(Lite模式)为多例。true时，配置类是代理对象，为false时不是代理对象
+
+@Import({User.class, DBHelper.class})
+    给容器中自动创建出这两个类型的组件、默认组件的名字就是全类名
+	@Import 高级用法： https://www.bilibili.com/video/BV1gW411W7wy?p=8
+
+@ConditionalOnBean(name = "pet01")
+条件装配：满足Conditional指定的条件，则进行组件注入
+使用@Conditional注意项：
+    name中的写入的bean的创建要在@Conditional注释之前，否则即使后面创建了name中bean，使用了@Conditional的地方也无法识别创建的bean。
+
+@ImportResource(应该很少用)
+原生配置文件引入：@ImportResource("classpath:资源路径")
+
+配置绑定
+    @ConfigurationProperties
+        配置绑定：将javabean和配置文件进行绑定。前提是将javabean注入到容器中(@Component)。
+
+    @EnableConfigurationProperties(Car.class)
+        该注解使用在配置类上，因为配置类已经在IOC容器中，无需再javabean类上使用@Component，
+        但是javabean上的@ConfigurationProperties不可以删除。
+        使用这种方法，在启动类中使用run.getBean("Car", Car.class)会报错，找不到Car这个类；但是通过url访问不会报错
+
+启动类都干了什么事
+    @SpringBootApplication包含了以下三个注解
+        @SpringBootConfiguration：就是将启动类变成一个配置类
+        @EnableAutoConfiguration：将指定的一个包下的所有组件导入进来？MainApplication 所在包下。
+        @ComponentScan：指定扫描路径
+
+@EnableAutoConfiguration和@ComponentScan的区别：
+    @ComponentScan扫描的范围默认是它所在的包以及子包中所有带有注解的类。
+    @EnableAutoConfiguration扫描的范围默认是它所在类。
+    @EnableAutoConfiguration除了扫描本类带有的注解外，还会借助@Import的支持，收集和注册依赖包中相关的bean定义，将这些bean注入到ioc容器中。
+    在springboot中注入的bean有两部分组成：
+    ① 一部分是自己在代码中写的标注有@Controller,@Service,@Respority,@Component等注解的业务bean，
+    这一部分bean就由@ComponentScan将它们加入到ioc容器中。
+    ② 还有一部分是springboot自带的相关bean（可以将这部分bean看成是工具bean），
+    这部分bean就是由@EnableAutoConfiguration负责加入到容器中。
+
+
+yml配置文件的注意事项：
+    字符串无需加引号，如果要加，''与""表示字符串内容 会被 转义/不转义
+
+WEB开发：https://www.yuque.com/atguigu/springboot/lcfeme
+    静态资源：
+        只要静态资源放在类路径下： called /static (or /public or /resources or /META-INF/resources
+        访问 ： 当前项目根路径/ + 静态资源名
+
+        原理： 静态映射/**。
+        请求进来，先去找Controller看能不能处理。不能处理的所有请求又都交给静态资源处理器。静态资源也找不到则响应404页面
